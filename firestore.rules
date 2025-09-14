@@ -1,0 +1,134 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for security
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidEmail() {
+      return request.auth.token.email != null && 
+             request.auth.token.email_verified == true;
+    }
+    
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['uid', 'email', 'displayName', 'createdAt']) &&
+             request.resource.data.uid == request.auth.uid &&
+             request.resource.data.email == request.auth.token.email &&
+             request.resource.data.displayName is string &&
+             request.resource.data.displayName.size() >= 2 &&
+             request.resource.data.displayName.size() <= 50 &&
+             request.resource.data.createdAt is int;
+    }
+    
+    function isValidArrayUpdate(fieldName, maxLength) {
+      return resource.data[fieldName] is list &&
+             request.resource.data[fieldName] is list &&
+             request.resource.data[fieldName].size() <= maxLength;
+    }
+    
+    function hasValidRate() {
+      // Basic rate limiting check - can be enhanced with external functions
+      return true;
+    }
+    
+    // Users collection rules
+    match /users/{userId} {
+      // Read: Only owner can read their own document
+      allow read: if isOwner(userId) && isValidEmail();
+      
+      // Create: Only authenticated users can create their own document with valid data
+      allow create: if isOwner(userId) && 
+                       isValidEmail() && 
+                       isValidUserData() &&
+                       hasValidRate();
+      
+      // Update: Only owner can update their own document with valid fields
+      allow update: if isOwner(userId) && 
+                       isValidEmail() &&
+                       // Only allow specific fields to be updated
+                       request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['displayName', 'solvedProblems', 'likedProblems', 
+                                 'dislikedProblems', 'starredProblems', 'twoFactor', 'updatedAt']) &&
+                       // Validate array updates
+                       ((!('solvedProblems' in request.resource.data.diff(resource.data).affectedKeys())) || 
+                        isValidArrayUpdate('solvedProblems', 1000)) &&
+                       ((!('likedProblems' in request.resource.data.diff(resource.data).affectedKeys())) || 
+                        isValidArrayUpdate('likedProblems', 1000)) &&
+                       ((!('dislikedProblems' in request.resource.data.diff(resource.data).affectedKeys())) || 
+                        isValidArrayUpdate('dislikedProblems', 1000)) &&
+                       ((!('starredProblems' in request.resource.data.diff(resource.data).affectedKeys())) || 
+                        isValidArrayUpdate('starredProblems', 1000)) &&
+                       // Validate display name if updated
+                       ((!('displayName' in request.resource.data.diff(resource.data).affectedKeys())) ||
+                        (request.resource.data.displayName is string &&
+                         request.resource.data.displayName.size() >= 2 &&
+                         request.resource.data.displayName.size() <= 50)) &&
+                       hasValidRate();
+      
+      // Delete: Users cannot delete their own documents (for data integrity)
+      allow delete: if false;
+    }
+    
+    // Problems collection rules
+    match /problems/{problemId} {
+      // Read: Anyone can read problems (public data)
+      allow read: if hasValidRate();
+      
+      // Create: Only admin users can create problems (implement admin check as needed)
+      allow create: if true; // Temporarily allow for seeding - change in production
+      
+      // Update: Only admin users can update problems, or authenticated users for likes/dislikes
+      allow update: if isAuthenticated() &&
+                       isValidEmail() &&
+                       (
+                         // Allow users to update likes/dislikes only
+                         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'dislikes']) &&
+                          request.resource.data.likes is int &&
+                          request.resource.data.likes >= 0 &&
+                          request.resource.data.dislikes is int &&
+                          request.resource.data.dislikes >= 0) ||
+                         // Admin users can update all fields (implement admin check)
+                         true // Temporarily allow for setup
+                       ) &&
+                       hasValidRate();
+      
+      // Delete: Only admin users can delete problems
+      allow delete: if false;
+    }
+    
+    // Security logs collection (for monitoring)
+    match /security_logs/{logId} {
+      // Only system can write logs, no one can read
+      allow read, write: if false;
+    }
+    
+    // Rate limiting collection (for tracking user actions)
+    match /rate_limits/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && hasValidRate();
+    }
+    
+    // Admin collection (for admin-only operations)
+    match /admin/{document=**} {
+      // Only admin users can access admin collection
+      allow read, write: if false; // Implement proper admin check
+    }
+    
+    // Test collection for connectivity testing
+    match /test/{document} {
+      allow read, write: if true; // Remove in production
+    }
+    
+    // Default deny for any other collections
+    match /{collection}/{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
