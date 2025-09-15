@@ -1,0 +1,77 @@
+nohup: ignoring input
+
+> codemaster@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.3
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.41:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.1s
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /middleware in 290ms (114 modules)
+ ○ Compiling /problems/[pid] ...
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /problems/[pid] in 3.9s (509 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /problems/maximum-subarray 200 in 1476ms
+ ✓ Compiled in 631ms (509 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /problems/maximum-subarray 200 in 275ms
+ GET /problems/maximum-subarray 200 in 1762ms
+ GET /problems/maximum-subarray 200 in 886ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.6s (544 modules)
+⏳ Waiting for client-side mount...
+ GET /_next/data/development/index.json 200 in 3269ms
+ GET /_next/data/development/problems/best-time-to-buy-and-sell-stock.json?pid=best-time-to-buy-and-sell-stock 200 in 876ms
+ ⨯ ./src/components/ProblemPage/LeetCodeProblemPage.tsx
+Error:   [31mx[0m Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[[36;1;4m/home/ambaskaryash/Downloads/leetcode-clone-youtube/src/components/ProblemPage/LeetCodeProblemPage.tsx[0m:761:1]
+ [2m758[0m |       </div>
+ [2m759[0m |     </div>
+ [2m760[0m |   );
+ [2m761[0m | };
+     : [35;1m^[0m
+ [2m762[0m | 
+ [2m763[0m | export default CodeMasterProblemPage;
+     `----
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4m/home/ambaskaryash/Downloads/leetcode-clone-youtube/src/components/ProblemPage/LeetCodeProblemPage.tsx[0m:763:39]
+ [2m761[0m | };
+ [2m762[0m | 
+ [2m763[0m | export default CodeMasterProblemPage;
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/ProblemPage/LeetCodeProblemPage.tsx
+ ⨯ ./src/components/ProblemPage/LeetCodeProblemPage.tsx
+Error:   [31mx[0m Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[[36;1;4m/home/ambaskaryash/Downloads/leetcode-clone-youtube/src/components/ProblemPage/LeetCodeProblemPage.tsx[0m:761:1]
+ [2m758[0m |       </div>
+ [2m759[0m |     </div>
+ [2m760[0m |   );
+ [2m761[0m | };
+     : [35;1m^[0m
+ [2m762[0m | 
+ [2m763[0m | export default CodeMasterProblemPage;
+     `----
+  [31mx[0m Unexpected eof
+     ,-[[36;1;4m/home/ambaskaryash/Downloads/leetcode-clone-youtube/src/components/ProblemPage/LeetCodeProblemPage.tsx[0m:763:39]
+ [2m761[0m | };
+ [2m762[0m | 
+ [2m763[0m | export default CodeMasterProblemPage;
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/ProblemPage/LeetCodeProblemPage.tsx
+ ○ Compiling /_error ...
+ GET /problems/best-time-to-buy-and-sell-stock 500 in 1374ms

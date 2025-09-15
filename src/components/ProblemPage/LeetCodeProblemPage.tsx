@@ -44,7 +44,7 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [showTestResults, setShowTestResults] = useState(false);
-  const [activeTab, setActiveTab] = useState<'description' | 'editorial' | 'discussions' | 'submissions'>('description');
+  const [activeTab, setActiveTab] = useState<'description' | 'editorial' | 'submissions'>('description');
   const [showCelebration, setShowCelebration] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -244,19 +244,236 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
       )}
       
       {/* Main Content */}
-      <div className="flex h-screen pt-14"> {/* pt-14 accounts for header height */}
-        <Split
-          sizes={[50, 50]}
-          minSize={300}
-          expandToMin={false}
-          gutterSize={6}
-          gutterAlign="center"
-          snapOffset={30}
-          dragInterval={1}
-          direction="horizontal"
-          cursor="col-resize"
-          className="flex h-full"
-        >
+      <div className="pt-14 min-h-screen"> {/* pt-14 accounts for header height */}
+        {/* Mobile Layout - Stack vertically */}
+        <div className="lg:hidden">
+          {/* Mobile Problem Description */}
+          <div className="bg-white dark:bg-gray-800">
+            {/* Problem Header */}
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="mb-4">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+                  {problem.title}
+                </h1>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(problem.difficulty)} self-start`}>
+                    {problem.difficulty}
+                  </span>
+                  <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                    <button className="flex items-center space-x-1 hover:text-orange-500">
+                      <IoThumbsUpOutline className="w-4 h-4" />
+                      <span>{problem.likes || 0}</span>
+                    </button>
+                    <button className="flex items-center space-x-1 hover:text-orange-500">
+                      <IoThumbsDownOutline className="w-4 h-4" />
+                      <span>{problem.dislikes || 0}</span>
+                    </button>
+                    <button className="flex items-center space-x-1 hover:text-orange-500">
+                      <IoStarOutline className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Problem Stats */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-500 dark:text-gray-400">
+                {problem.acceptanceRate && (
+                  <div className="flex items-center space-x-1">
+                    <IoCheckmarkCircle className="w-4 h-4" />
+                    <span>Accepted: {problem.acceptanceRate.toFixed(1)}%</span>
+                  </div>
+                )}
+                <div className="flex items-center space-x-1">
+                  <IoEyeOutline className="w-4 h-4" />
+                  <span>Submissions: {Math.floor(Math.random() * 1000000)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Tab Navigation */}
+            <div className="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 overflow-x-auto">
+              {(['description', 'editorial', 'submissions'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 sm:px-6 py-3 text-sm font-medium capitalize transition-colors whitespace-nowrap ${
+                    activeTab === tab
+                      ? 'text-orange-500 border-b-2 border-orange-500 bg-white dark:bg-gray-800'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile Content Area */}
+            <div className="p-4 sm:p-6 max-h-96 overflow-y-auto">
+              {activeTab === 'description' && (
+                <div className="space-y-4 sm:space-y-6 text-gray-700 dark:text-gray-300">
+                  {/* Problem Description */}
+                  <div 
+                    className="prose prose-sm max-w-none dark:prose-invert"
+                    dangerouslySetInnerHTML={{ __html: problem.description || 'Problem description not available.' }}
+                  />
+
+                  {/* Examples */}
+                  {problem.examples && problem.examples.length > 0 && (
+                    <div>
+                      <h3 className="text-gray-900 dark:text-white font-semibold mb-3">Examples:</h3>
+                      {problem.examples.slice(0, 2).map((example, index) => (
+                        <div key={index} className="mb-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                          <div className="text-sm space-y-2">
+                            <div>
+                              <span className="text-gray-600 dark:text-gray-400 font-medium">Input: </span>
+                              <code className="text-orange-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
+                                {example.input}
+                              </code>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 dark:text-gray-400 font-medium">Output: </span>
+                              <code className="text-green-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
+                                {example.output}
+                              </code>
+                            </div>
+                            {example.explanation && (
+                              <div>
+                                <span className="text-gray-600 dark:text-gray-400 font-medium">Explanation: </span>
+                                <span className="text-gray-700 dark:text-gray-300">{example.explanation}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {activeTab === 'editorial' && (
+                <div className="text-center py-8">
+                  <IoCodeSlashOutline className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">Editorial content coming soon!</p>
+                </div>
+              )}
+              {activeTab === 'submissions' && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Submissions history coming soon!</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Code Editor */}
+          <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+            {/* Mobile Editor Header */}
+            <div className="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <select
+                  value={selectedLanguage}
+                  onChange={(e) => handleLanguageChange(e.target.value as SupportedLanguage)}
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 w-full sm:w-auto"
+                >
+                  {Object.entries(languageConfig).map(([key, config]) => (
+                    <option key={key} value={key}>
+                      {config.name}
+                    </option>
+                  ))}
+                </select>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setIsFullscreen(!isFullscreen)}
+                    className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
+                    title="Fullscreen"
+                  >
+                    {isFullscreen ? <BsFullscreenExit className="w-4 h-4" /> : <BsFullscreen className="w-4 h-4" />}
+                  </button>
+                  <button
+                    className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
+                    title="Settings"
+                  >
+                    <IoSettingsOutline className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Code Editor */}
+            <div className="h-80 sm:h-96 bg-gray-900">
+              <CodeMirror
+                value={code}
+                height="100%"
+                theme={vscodeDark}
+                extensions={languageConfig[selectedLanguage].extension}
+                onChange={(value) => setCode(value)}
+                basicSetup={{
+                  lineNumbers: true,
+                  foldGutter: false,
+                  dropCursor: false,
+                  allowMultipleSelections: false,
+                  indentOnInput: true,
+                  bracketMatching: true,
+                  closeBrackets: true,
+                  autocompletion: true,
+                  highlightSelectionMatches: false,
+                }}
+                style={{
+                  fontSize: '14px',
+                  height: '100%',
+                }}
+              />
+            </div>
+
+            {/* Mobile Action Bar */}
+            <div className="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Console</span>
+                  <button
+                    onClick={() => setShowTestResults(!showTestResults)}
+                    className="text-sm text-orange-500 hover:underline"
+                  >
+                    {showTestResults ? 'Hide' : 'Show'} Testcase
+                  </button>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={runCode}
+                    disabled={isSubmitting}
+                    className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50 text-sm font-medium"
+                  >
+                    <IoPlay className="w-4 h-4" />
+                    <span>Run</span>
+                  </button>
+                  <button
+                    onClick={submitSolution}
+                    disabled={isSubmitting}
+                    className="flex-1 sm:flex-none flex items-center justify-center space-x-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded transition-colors disabled:opacity-50 text-sm font-medium"
+                  >
+                    <IoCheckmarkCircle className="w-4 h-4" />
+                    <span>Submit</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Layout - Split view */}
+        <div className="hidden lg:flex h-screen">
+          <Split
+            sizes={[50, 50]}
+            minSize={300}
+            expandToMin={false}
+            gutterSize={6}
+            gutterAlign="center"
+            snapOffset={30}
+            dragInterval={1}
+            direction="horizontal"
+            cursor="col-resize"
+            className="flex h-full"
+          >
           {/* Left Panel - Problem Description */}
           <div className="bg-white dark:bg-gray-800 flex flex-col">
             {/* Problem Header */}
@@ -302,7 +519,7 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
 
             {/* Tab Navigation */}
             <div className="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-              {(['description', 'editorial', 'discussions', 'submissions'] as const).map((tab) => (
+              {(['description', 'editorial', 'submissions'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -391,12 +608,6 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
                 </div>
               )}
 
-              {activeTab === 'discussions' && (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">Discussion feature coming soon!</p>
-                </div>
-              )}
-
               {activeTab === 'submissions' && (
                 <div className="text-center py-12">
                   <p className="text-gray-500">Submissions history coming soon!</p>
@@ -473,7 +684,7 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
                   <span className="text-sm text-gray-600 dark:text-gray-400">Console</span>
                   <button
                     onClick={() => setShowTestResults(!showTestResults)}
-                    className="text-sm text-leetcode-orange hover:underline"
+                    className="text-sm text-orange-500 hover:underline"
                   >
                     {showTestResults ? 'Hide' : 'Show'} Testcase
                   </button>
@@ -491,7 +702,7 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
                   <button
                     onClick={submitSolution}
                     disabled={isSubmitting}
-                    className="flex items-center space-x-2 px-4 py-2 bg-leetcode-orange hover:bg-leetcode-orange-hover text-white rounded transition-colors disabled:opacity-50 text-sm font-medium"
+                    className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded transition-colors disabled:opacity-50 text-sm font-medium"
                   >
                     <IoCheckmarkCircle className="w-4 h-4" />
                     <span>Submit</span>
@@ -544,6 +755,7 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
           </div>
         </Split>
       </div>
+    </div>
     </div>
   );
 };

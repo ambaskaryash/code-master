@@ -12,7 +12,6 @@ import {
   BsListUl,
   BsLightningCharge,
   BsTrophy,
-  BsChatDots,
   BsBriefcase,
   BsShop,
   BsBookmark
@@ -57,7 +56,7 @@ const CodeMasterHeader: React.FC<CodeMasterHeaderProps> = ({ problemPage }) => {
     { label: 'Explore', href: '/explore', icon: BsListUl },
     { label: 'Problems', href: '/', icon: BsLightningCharge },
     // { label: 'Contest', href: '/contest', icon: BsTrophy }, // Temporarily removed
-    { label: 'Discuss', href: '/discuss', icon: BsChatDots },
+    // { label: 'Discuss', href: '/discuss', icon: BsChatDots }, // Removed
     { label: 'Interview', href: '/interview', icon: BsBriefcase },
     { label: 'Store', href: '/store', icon: BsShop },
   ];
