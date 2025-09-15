@@ -20,11 +20,11 @@ import { RxHamburgerMenu } from 'react-icons/rx';
 import { IoClose } from 'react-icons/io5';
 import Logout from '../Buttons/Logout';
 
-interface LeetCodeHeaderProps {
+interface CodeMasterHeaderProps {
   problemPage?: boolean;
 }
 
-const LeetCodeHeader: React.FC<LeetCodeHeaderProps> = ({ problemPage }) => {
+const CodeMasterHeader: React.FC<CodeMasterHeaderProps> = ({ problemPage }) => {
   const { user } = useSupabaseAuth();
   const router = useRouter();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -79,7 +79,7 @@ const LeetCodeHeader: React.FC<LeetCodeHeaderProps> = ({ problemPage }) => {
                   L
                 </div>
                 <span className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-[#FFA116] transition-colors">
-                  LeetCode
+                  CodeMaster
                 </span>
               </Link>
 
@@ -138,7 +138,7 @@ const LeetCodeHeader: React.FC<LeetCodeHeaderProps> = ({ problemPage }) => {
                 {showPremiumDropdown && (
                   <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
                     <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">LeetCode Premium</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">CodeMaster Premium</p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">Unlock all features</p>
                     </div>
                     <div className="py-2">
@@ -324,4 +324,4 @@ const LeetCodeHeader: React.FC<LeetCodeHeaderProps> = ({ problemPage }) => {
   );
 };
 
-export default LeetCodeHeader;
+export default CodeMasterHeader;

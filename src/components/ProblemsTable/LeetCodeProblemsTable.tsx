@@ -13,11 +13,11 @@ import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 type SortField = 'status' | 'title' | 'acceptance' | 'difficulty' | 'frequency';
 type SortOrder = 'asc' | 'desc';
 
-type LeetCodeProblemsTableProps = {
+type CodeMasterProblemsTableProps = {
 	setLoadingProblems: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const LeetCodeProblemsTable: React.FC<LeetCodeProblemsTableProps> = ({ setLoadingProblems }) => {
+const CodeMasterProblemsTable: React.FC<CodeMasterProblemsTableProps> = ({ setLoadingProblems }) => {
 	const [youtubePlayer, setYoutubePlayer] = useState({
 		isOpen: false,
 		videoId: "",
@@ -418,7 +418,7 @@ const LeetCodeProblemsTable: React.FC<LeetCodeProblemsTableProps> = ({ setLoadin
 	);
 };
 
-export default LeetCodeProblemsTable;
+export default CodeMasterProblemsTable;
 
 // Custom hooks (updated for Supabase)
 function useGetProblems(setLoadingProblems: React.Dispatch<React.SetStateAction<boolean>>) {

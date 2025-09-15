@@ -1,6 +1,6 @@
 import { authModalState } from "@/atoms/authModalAtom";
 import { signUpUser } from "@/lib/auth-helpers";
-import { supabase } from "@/utils/supabase";
+import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { useRouter } from "next/router";

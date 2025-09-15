@@ -7,7 +7,7 @@ import {
   getUserBadges, 
   getUserRecentAttempts 
 } from '@/lib/supabase';
-import LeetCodeHeader from '@/components/Header/LeetCodeHeader';
+import CodeMasterHeader from '@/components/Header/LeetCodeHeader';
 import { useRouter } from 'next/router';
 import { 
   IoCalendarOutline,
@@ -131,16 +131,16 @@ const ProfilePage: React.FC = () => {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy': return 'text-leetcode-easy';
-      case 'Medium': return 'text-leetcode-medium'; 
-      case 'Hard': return 'text-leetcode-hard';
+      case 'Easy': return 'text-green-500';
+      case 'Medium': return 'text-yellow-500'; 
+      case 'Hard': return 'text-red-500';
       default: return 'text-gray-400';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Accepted': return 'text-leetcode-easy';
+      case 'Accepted': return 'text-green-500';
       case 'Wrong Answer': return 'text-red-500';
       case 'Time Limit Exceeded': return 'text-yellow-500';
       case 'Runtime Error': return 'text-orange-500';
@@ -195,9 +195,9 @@ const ProfilePage: React.FC = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <LeetCodeHeader />
+        <CodeMasterHeader />
         <div className="flex items-center justify-center pt-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-leetcode-orange"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
           <span className="ml-3 text-gray-600 dark:text-gray-400">Loading authentication...</span>
         </div>
       </div>
@@ -211,9 +211,9 @@ const ProfilePage: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <LeetCodeHeader />
+        <CodeMasterHeader />
         <div className="flex items-center justify-center pt-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-leetcode-orange"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
         </div>
       </div>
     );
@@ -221,14 +221,14 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <LeetCodeHeader />
+      <CodeMasterHeader />
       
       <div className="max-w-6xl mx-auto px-4 pt-6 pb-10">
         {/* Profile Header */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-leetcode-orange rounded-full flex items-center justify-center text-white font-bold text-2xl">
+              <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-2xl">
                 {user.email?.[0]?.toUpperCase() || 'U'}
               </div>
               <div>
@@ -261,7 +261,7 @@ const ProfilePage: React.FC = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Problems Solved</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{userStats?.problems_solved || 0}</p>
               </div>
-              <BsCheck2Circle className="w-8 h-8 text-leetcode-easy" />
+              <BsCheck2Circle className="w-8 h-8 text-green-500" />
             </div>
           </div>
 
@@ -311,7 +311,7 @@ const ProfilePage: React.FC = () => {
                   onClick={() => setActiveTab(key as any)}
                   className={`flex items-center space-x-2 py-4 border-b-2 font-medium text-sm transition-colors ${
                     activeTab === key
-                      ? 'border-leetcode-orange text-leetcode-orange'
+                      ? 'border-orange-500 text-orange-500'
                       : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
                   }`}
                 >
@@ -331,15 +331,15 @@ const ProfilePage: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Problem Progress</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <div className="text-2xl font-bold text-leetcode-easy">{userStats?.easy_solved || 0}</div>
+                      <div className="text-2xl font-bold text-green-500">{userStats?.easy_solved || 0}</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">Easy</div>
                     </div>
                     <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                      <div className="text-2xl font-bold text-leetcode-medium">{userStats?.medium_solved || 0}</div>
+                      <div className="text-2xl font-bold text-yellow-500">{userStats?.medium_solved || 0}</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">Medium</div>
                     </div>
                     <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                      <div className="text-2xl font-bold text-leetcode-hard">{userStats?.hard_solved || 0}</div>
+                      <div className="text-2xl font-bold text-red-500">{userStats?.hard_solved || 0}</div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">Hard</div>
                     </div>
                   </div>
@@ -378,7 +378,7 @@ const ProfilePage: React.FC = () => {
                   {recentSubmissions.map((submission, index) => (
                     <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="flex items-center space-x-4">
-                        <div className={`w-2 h-2 rounded-full ${submission.status === 'Accepted' ? 'bg-leetcode-easy' : 'bg-red-500'}`}></div>
+                        <div className={`w-2 h-2 rounded-full ${submission.status === 'Accepted' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">{submission.problems.title}</p>
                           <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
@@ -407,8 +407,8 @@ const ProfilePage: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Badges & Achievements</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {badges.length > 0 ? badges.map((badge, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-4 bg-gradient-to-r from-leetcode-orange/10 to-yellow-400/10 rounded-lg border border-leetcode-orange/20">
-                      <IoTrophyOutline className="w-8 h-8 text-leetcode-orange" />
+                    <div key={index} className="flex items-center space-x-3 p-4 bg-gradient-to-r from-orange-500/10 to-yellow-400/10 rounded-lg border border-orange-500/20">
+                      <IoTrophyOutline className="w-8 h-8 text-orange-500" />
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">{badge.badge_name}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">{badge.description}</p>

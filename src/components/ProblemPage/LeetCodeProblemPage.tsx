@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '@/lib/supabase';
 import { DBProblem, SupportedLanguage, TestResult } from '@/utils/types/problem';
 import { toast } from 'react-toastify';
 import CodeMirror from '@uiw/react-codemirror';
@@ -10,7 +10,7 @@ import { python } from '@codemirror/lang-python';
 import { java } from '@codemirror/lang-java';
 import { cpp } from '@codemirror/lang-cpp';
 import Confetti from 'react-confetti';
-import LeetCodeHeader from '../Header/LeetCodeHeader';
+import CodeMasterHeader from '../Header/LeetCodeHeader';
 import Split from 'react-split';
 import { 
   IoPlay, 
@@ -31,13 +31,13 @@ import {
 } from 'react-icons/io5';
 import { BsFullscreen, BsFullscreenExit } from 'react-icons/bs';
 
-interface LeetCodeProblemPageProps {
-  problemId: string;
+interface CodeMasterProblemPageProps {
+	problem: DBProblem;
 }
 
-const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) => {
-  const { user } = useAuth();
-  const [problem, setProblem] = useState<DBProblem | null>(null);
+const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: initialProblem }) => {
+	const { user } = useAuth();
+	const [problem, setProblem] = useState<DBProblem | null>(initialProblem);
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('javascript');
   const [code, setCode] = useState('');
@@ -74,42 +74,16 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
   };
 
   useEffect(() => {
-    const fetchProblem = async () => {
-      try {
-        const { data: problemData, error } = await supabase
-          .from('problems')
-          .select('*')
-          .eq('id', problemId)
-          .single();
-        
-        if (error) {
-          console.error('Error fetching problem:', error);
-          toast.error(`Problem '${problemId}' not found`);
-          return;
-        }
-
-        if (problemData) {
-          setProblem(problemData as DBProblem);
-          
-          // Set initial code based on problem's starter code
-          if (problemData.starterCode && problemData.starterCode[selectedLanguage]) {
-            setCode(problemData.starterCode[selectedLanguage]);
-          } else {
-            setCode(languageConfig[selectedLanguage].defaultCode);
-          }
-        } else {
-          toast.error(`Problem '${problemId}' not found`);
-        }
-      } catch (error) {
-        console.error('Error fetching problem:', error);
-        toast.error('Failed to load problem');
-      } finally {
-        setLoading(false);
+    if (problem) {
+      // Set initial code based on problem's starter code
+      if (problem.starterCode && problem.starterCode[selectedLanguage]) {
+        setCode(problem.starterCode[selectedLanguage]);
+      } else {
+        setCode(languageConfig[selectedLanguage].defaultCode);
       }
-    };
-
-    fetchProblem();
-  }, [problemId, selectedLanguage]);
+      setLoading(false);
+    }
+  }, [problem, selectedLanguage]);
 
   const handleLanguageChange = (language: SupportedLanguage) => {
     setSelectedLanguage(language);
@@ -134,7 +108,7 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
         body: JSON.stringify({
           code,
           language: selectedLanguage,
-          problemId: problemId,
+          problemId: problem.id,
           testCases: problem.testCases?.map(testCase => ({
             input: testCase.input,
             expectedOutput: testCase.expectedOutput,
@@ -179,7 +153,7 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
         body: JSON.stringify({
           code,
           language: selectedLanguage,
-          problemId: problemId,
+          problemId: problem.id,
           testCases: problem.testCases?.map(testCase => ({
             input: testCase.input,
             expectedOutput: testCase.expectedOutput,
@@ -200,7 +174,7 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
             .from('user_progress')
             .upsert({
               userId: user.id,
-              problemId: problemId,
+              problemId: problem.id,
               status: 'solved',
               solvedAt: new Date().toISOString()
             });
@@ -231,9 +205,9 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy': return 'text-leetcode-easy';
-      case 'Medium': return 'text-leetcode-medium';
-      case 'Hard': return 'text-leetcode-hard';
+      case 'Easy': return 'text-green-500';
+      case 'Medium': return 'text-yellow-500';
+      case 'Hard': return 'text-red-500';
       default: return 'text-gray-400';
     }
   };
@@ -241,7 +215,7 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-leetcode-orange"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
       </div>
     );
   }
@@ -256,7 +230,7 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 relative">
-      <LeetCodeHeader problemPage={true} />
+      <CodeMasterHeader problemPage={true} />
       
       {/* Confetti Animation */}
       {showCelebration && (
@@ -296,15 +270,15 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
                     {problem.difficulty}
                   </span>
                   <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                    <button className="flex items-center space-x-1 hover:text-leetcode-orange">
+                    <button className="flex items-center space-x-1 hover:text-orange-500">
                       <IoThumbsUpOutline className="w-4 h-4" />
                       <span>{problem.likes || 0}</span>
                     </button>
-                    <button className="flex items-center space-x-1 hover:text-leetcode-orange">
+                    <button className="flex items-center space-x-1 hover:text-orange-500">
                       <IoThumbsDownOutline className="w-4 h-4" />
                       <span>{problem.dislikes || 0}</span>
                     </button>
-                    <button className="flex items-center space-x-1 hover:text-leetcode-orange">
+                    <button className="flex items-center space-x-1 hover:text-orange-500">
                       <IoStarOutline className="w-4 h-4" />
                     </button>
                   </div>
@@ -334,7 +308,7 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
                   onClick={() => setActiveTab(tab)}
                   className={`px-6 py-3 text-sm font-medium capitalize transition-colors ${
                     activeTab === tab
-                      ? 'text-leetcode-orange border-b-2 border-leetcode-orange bg-white dark:bg-gray-800'
+                      ? 'text-orange-500 border-b-2 border-orange-500 bg-white dark:bg-gray-800'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
@@ -362,13 +336,13 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
                           <div className="text-sm space-y-2">
                             <div>
                               <span className="text-gray-600 dark:text-gray-400 font-medium">Input: </span>
-                              <code className="text-leetcode-orange bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
+                              <code className="text-orange-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
                                 {example.input}
                               </code>
                             </div>
                             <div>
                               <span className="text-gray-600 dark:text-gray-400 font-medium">Output: </span>
-                              <code className="text-leetcode-easy bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
+                              <code className="text-green-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm">
                                 {example.output}
                               </code>
                             </div>
@@ -385,13 +359,16 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
                   )}
 
                   {/* Constraints */}
-                  {problem.constraints && problem.constraints.length > 0 && (
+                  {problem.constraints && (
                     <div>
                       <h3 className="text-gray-900 dark:text-white font-semibold mb-3">Constraints:</h3>
                       <ul className="list-disc list-inside space-y-1 text-sm">
-                        {problem.constraints.map((constraint, index) => (
+                        {(Array.isArray(problem.constraints) 
+                          ? problem.constraints 
+                          : (problem.constraints as string).split('\n')
+                        ).map((constraint, index) => (
                           <li key={index} className="text-gray-600 dark:text-gray-400">
-                            <code className="text-gray-800 dark:text-gray-200">{constraint}</code>
+                            <code className="text-gray-800 dark:text-gray-200">{constraint.trim()}</code>
                           </li>
                         ))}
                       </ul>
@@ -436,7 +413,7 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
                 <select
                   value={selectedLanguage}
                   onChange={(e) => handleLanguageChange(e.target.value as SupportedLanguage)}
-                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-leetcode-orange"
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
                   {Object.entries(languageConfig).map(([key, config]) => (
                     <option key={key} value={key}>
@@ -571,4 +548,4 @@ const LeetCodeProblemPage: React.FC<LeetCodeProblemPageProps> = ({ problemId }) 
   );
 };
 
-export default LeetCodeProblemPage;
+export default CodeMasterProblemPage;

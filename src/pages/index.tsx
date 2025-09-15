@@ -1,5 +1,5 @@
-import LeetCodeProblemsTable from "@/components/ProblemsTable/LeetCodeProblemsTable";
-import LeetCodeHeader from "@/components/Header/LeetCodeHeader";
+import CodeMasterProblemsTable from "@/components/ProblemsTable/LeetCodeProblemsTable";
+import CodeMasterHeader from "@/components/Header/LeetCodeHeader";
 import useHasMounted from "@/hooks/useHasMounted";
 
 import { useState, useEffect } from "react";
@@ -27,7 +27,7 @@ export default function Home() {
 	return (
 		<>
 			<main className='bg-gray-50 dark:bg-gray-900 min-h-screen'>
-				<LeetCodeHeader />
+				<CodeMasterHeader />
 				{/* Always render LeetCodeProblemsTable so hooks can run, but show loading skeleton when loading */}
 				{loadingProblems && (
 					<div className='max-w-7xl mx-auto px-4 py-6'>
@@ -39,7 +39,7 @@ export default function Home() {
 					</div>
 				)}
 				<div style={{ display: loadingProblems ? 'none' : 'block' }}>
-					<LeetCodeProblemsTable setLoadingProblems={setLoadingProblems} />
+					<CodeMasterProblemsTable setLoadingProblems={setLoadingProblems} />
 				</div>
 			</main>
 		</>

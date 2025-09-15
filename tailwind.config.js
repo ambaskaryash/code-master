@@ -31,26 +31,26 @@ module.exports = {
 				"dark-green-s": "rgb(44 187 93)",
 				"dark-blue-s": "rgb(10 132 255)",
 				
-				// LeetCode authentic colors
-				"leetcode-orange": "#FFA116",
-				"leetcode-orange-hover": "#FF9500", 
-				"leetcode-orange-dark": "#FF8C00",
-				"leetcode-easy": "#00b8a3",
-				"leetcode-medium": "#ffb800",
-				"leetcode-hard": "#ff375f",
-				"leetcode-bg": {
+				// CodeMaster brand colors
+				"codemaster-orange": "#FFA116",
+				"codemaster-orange-hover": "#FF9500", 
+				"codemaster-orange-dark": "#FF8C00",
+				"codemaster-easy": "#00b8a3",
+				"codemaster-medium": "#ffb800",
+				"codemaster-hard": "#ff375f",
+				"codemaster-bg": {
 					light: "#ffffff",
 					dark: "#1a1a1a"
 				},
-				"leetcode-surface": {
+				"codemaster-surface": {
 					light: "#f7f8fa",
 					dark: "#2d2d2d"
 				},
-				"leetcode-text": {
+				"codemaster-text": {
 					light: "#262626", 
 					dark: "#eff1f6bf"
 				},
-				"leetcode-border": {
+				"codemaster-border": {
 					light: "#e5e7eb",
 					dark: "#3a3a3a"
 				}
