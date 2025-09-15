@@ -100,7 +100,7 @@ export async function middleware(request: NextRequest) {
     "img-src 'self' data: https: blob:",
     "media-src 'self' https://*.youtube.com https://www.youtube.com blob:",
     "frame-src 'self' https://*.youtube.com https://www.youtube.com",
-    "connect-src 'self' https://*.firebaseapp.com https://*.googleapis.com wss://*.firebaseio.com https://*.firestore.googleapis.com https://*.identitytoolkit.googleapis.com",
+    "connect-src 'self' https://*.firebaseapp.com https://*.googleapis.com wss://*.firebaseio.com https://*.firestore.googleapis.com https://*.identitytoolkit.googleapis.com https://*.supabase.co wss://*.supabase.co https://judge0-ce.p.rapidapi.com",
     "worker-src 'self' blob: data:",
     "child-src 'self' https://*.youtube.com blob:",
     "form-action 'self'",

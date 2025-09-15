@@ -1,8 +1,6 @@
-import ProblemPage from '@/components/ProblemPage/ProblemPage';
+import LeetCodeProblemPage from '@/components/ProblemPage/LeetCodeProblemPage';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { firestore } from '@/firebase/firebase';
 import { DBProblem } from '@/utils/types/problem';
 import { GetServerSideProps } from 'next';
 
@@ -11,7 +9,7 @@ interface ProblemPageWrapperProps {
 }
 
 const ProblemPageWrapper: React.FC<ProblemPageWrapperProps> = ({ problemId }) => {
-	return <ProblemPage problemId={problemId} />;
+	return <LeetCodeProblemPage problemId={problemId} />;
 };
 
 export default ProblemPageWrapper;

@@ -1,9 +1,8 @@
 import { authModalState } from "@/atoms/authModalAtom";
 import AuthModal from "@/components/Modals/AuthModal";
 import Navbar from "@/components/Navbar/Navbar";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/firebase/firebase";
-import { useRecoilValue } from "recoil";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
@@ -11,14 +10,19 @@ type AuthPageProps = {};
 
 const AuthPage: React.FC<AuthPageProps> = () => {
 	const authModal = useRecoilValue(authModalState);
-	const [user, loading, error] = useAuthState(auth);
+	const setAuthModalState = useSetRecoilState(authModalState);
+	const { user, loading } = useSupabaseAuth();
 	const [pageLoading, setPageLoading] = useState(true);
 	const router = useRouter();
 
 	useEffect(() => {
 		if (user) router.push("/");
-		if (!loading && !user) setPageLoading(false);
-	}, [user, router, loading]);
+		if (!loading && !user) {
+			setPageLoading(false);
+			// Auto-open the auth modal when page loads
+			setAuthModalState({ isOpen: true, type: 'login' });
+		}
+	}, [user, router, loading, setAuthModalState]);
 
 	if (pageLoading) return null;
 
@@ -27,9 +31,21 @@ const AuthPage: React.FC<AuthPageProps> = () => {
 			<div className='max-w-7xl mx-auto'>
 				<Navbar />
 				<div className='flex items-center justify-center h-[calc(100vh-5rem)] pointer-events-none select-none'>
-					<Image src='/hero.png' alt='Hero img' width={700} height={700} />
+					<Image 
+						src='/hero.png' 
+						alt='Hero img' 
+						width={700} 
+						height={700} 
+						priority 
+						style={{
+							width: 'auto',
+							height: 'auto',
+							maxWidth: '700px',
+							maxHeight: '700px'
+						}}
+					/>
 				</div>
-				{authModal.isOpen && <AuthModal />}
+				<AuthModal />
 			</div>
 		</div>
 	);

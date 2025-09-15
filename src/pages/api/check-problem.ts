@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { doc, getDoc, collection, getDocs, limit, query } from 'firebase/firestore';
-import { firestore } from '@/firebase/firebase';
+import { supabase } from '@/utils/supabase';
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,40 +9,41 @@ export default async function handler(
 
   try {
     // Check specific problem
-    const docRef = doc(firestore, 'problems', problemId as string);
-    const docSnap = await getDoc(docRef);
+    const { data: problemData, error } = await supabase
+      .from('problems')
+      .select('*')
+      .eq('id', problemId as string)
+      .single();
     
-    if (docSnap.exists()) {
-      const problemData = { id: docSnap.id, ...docSnap.data() };
-      
+    if (!error && problemData) {
       return res.status(200).json({ 
         success: true,
         found: true,
         problem: problemData,
-        hasDescription: !!problemData.description,
-        hasProblemStatement: !!problemData.problemStatement,
-        hasExamples: !!problemData.examples && problemData.examples.length > 0,
-        hasTestCases: !!problemData.testCases && problemData.testCases.length > 0
+        hasDescription: !!problemData.problem_statement,
+        hasExamples: !!problemData.examples,
+        hasConstraints: !!problemData.constraints,
+        hasStarterCode: !!problemData.starter_code
       });
     } else {
       // Check if we have any problems at all
-      const problemsRef = collection(firestore, 'problems');
-      const problemsQuery = query(problemsRef, limit(5));
-      const querySnapshot = await getDocs(problemsQuery);
+      const { data: sampleProblems, error: sampleError } = await supabase
+        .from('problems')
+        .select('id, title, problem_statement')
+        .limit(5);
       
-      const sampleProblems = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        title: doc.data().title || 'No title',
-        hasDescription: !!doc.data().description,
-        hasProblemStatement: !!doc.data().problemStatement
-      }));
+      const formattedSamples = sampleProblems?.map(problem => ({
+        id: problem.id,
+        title: problem.title || 'No title',
+        hasDescription: !!problem.problem_statement
+      })) || [];
       
       return res.status(200).json({ 
         success: true,
         found: false,
         message: `Problem '${problemId}' not found`,
-        sampleProblems,
-        totalProblemsFound: querySnapshot.size
+        sampleProblems: formattedSamples,
+        totalProblemsFound: sampleProblems?.length || 0
       });
     }
   } catch (error: any) {

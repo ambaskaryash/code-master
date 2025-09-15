@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,10 +11,33 @@
 	margin: 0;
 }
 
+:root {
+  /* LeetCode Color Scheme */
+  --leetcode-orange: #FFA116;
+  --leetcode-orange-hover: #FF9500;
+  --leetcode-orange-dark: #FF8C00;
+  --leetcode-easy: #00b8a3;
+  --leetcode-medium: #ffb800;
+  --leetcode-hard: #ff375f;
+  --leetcode-bg-light: #ffffff;
+  --leetcode-bg-dark: #1a1a1a;
+  --leetcode-surface-light: #f7f8fa;
+  --leetcode-surface-dark: #2d2d2d;
+  --leetcode-text-light: #262626;
+  --leetcode-text-dark: #eff1f6bf;
+  --leetcode-border-light: #e5e7eb;
+  --leetcode-border-dark: #3a3a3a;
+}
+
 body {
-	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+	font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
 		"Open Sans", "Helvetica Neue", sans-serif;
 	height: 100vh;
+	background-color: #f7f8fa;
+}
+
+.dark body {
+  background-color: #1a1a1a;
 }
 
 @layer components {
@@ -22,21 +47,63 @@ body {
 
 	.preferenceBtn-tooltip {
 		@apply absolute w-auto p-2 text-sm m-2  min-w-max translate-x-3  right-0 top-5 z-10 rounded-md shadow-md
-		text-dark-layer-2 bg-gray-200  origin-center scale-0 transition-all duration-100 ease-linear group-hover:scale-100;
+	text-dark-layer-2 bg-gray-200  origin-center scale-0 transition-all duration-100 ease-linear group-hover:scale-100;
+	}
+
+	/* LeetCode-style components */
+	.leetcode-button {
+		@apply px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98];
+	}
+
+	.leetcode-button-primary {
+		@apply leetcode-button bg-leetcode-orange hover:bg-leetcode-orange-hover text-white;
+	}
+
+	.leetcode-button-secondary {
+		@apply leetcode-button bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300;
+	}
+
+	.dark .leetcode-button-secondary {
+		@apply bg-gray-700 hover:bg-gray-600 text-gray-300 border-gray-600;
+	}
+
+	.leetcode-input {
+		@apply w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-leetcode-orange focus:border-transparent transition-colors;
+	}
+
+	.dark .leetcode-input {
+		@apply border-gray-600 bg-gray-800 text-white placeholder-gray-400;
 	}
 }
 
-/* dark  scrollbar */
+/* LeetCode-style scrollbar */
 ::-webkit-scrollbar {
-	width: 0.5rem;
+	width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-	background: #282828;
+	background: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
+	background: #2d2d2d;
 }
 
 ::-webkit-scrollbar-thumb {
-	background: #4d4d4d;
+	background: #c1c1c1;
+	border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #a8a8a8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+	background: #555;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+	background: #777;
 }
 
 /* CODE EDITOR*/

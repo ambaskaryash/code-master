@@ -1,10 +1,11 @@
 import { authModalState } from "@/atoms/authModalAtom";
-import { auth } from "@/firebase/firebase";
+import { signIn } from "@/lib/supabase";
+import { supabase } from "@/utils/supabase";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useSetRecoilState } from "recoil";
 import { toast } from "react-toastify";
+import { FcGoogle } from "react-icons/fc";
 type LoginProps = {};
 
 const Login: React.FC<LoginProps> = () => {
@@ -13,7 +14,7 @@ const Login: React.FC<LoginProps> = () => {
 		setAuthModalState((prev) => ({ ...prev, type }));
 	};
 	const [inputs, setInputs] = useState({ email: "", password: "" });
-	const [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
+	const [loading, setLoading] = useState(false);
 	const router = useRouter();
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -21,19 +22,45 @@ const Login: React.FC<LoginProps> = () => {
 
 	const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		if (!inputs.email || !inputs.password) return alert("Please fill all fields");
+		if (!inputs.email || !inputs.password) {
+			toast.error("Please fill all fields", { position: "top-center", autoClose: 3000, theme: "dark" });
+			return;
+		}
+		
+		setLoading(true);
 		try {
-			const newUser = await signInWithEmailAndPassword(inputs.email, inputs.password);
-			if (!newUser) return;
+			const { user } = await signIn(inputs.email, inputs.password);
+			if (!user) {
+				throw new Error("Login failed");
+			}
+			toast.success("Successfully logged in!", { position: "top-center", autoClose: 2000, theme: "dark" });
 			router.push("/");
 		} catch (error: any) {
 			toast.error(error.message, { position: "top-center", autoClose: 3000, theme: "dark" });
+		} finally {
+			setLoading(false);
 		}
 	};
 
-	useEffect(() => {
-		if (error) toast.error(error.message, { position: "top-center", autoClose: 3000, theme: "dark" });
-	}, [error]);
+	const handleGoogleSignIn = async () => {
+		setLoading(true);
+		try {
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider: 'google',
+				options: {
+					redirectTo: `${window.location.origin}/`,
+				}
+			});
+			
+			if (error) {
+				throw error;
+			}
+		} catch (error: any) {
+			toast.error(error.message, { position: "top-center", autoClose: 3000, theme: "dark" });
+			setLoading(false);
+		}
+	};
+
 	return (
 		<form className='space-y-6 px-6 pb-4' onSubmit={handleLogin}>
 			<h3 className='text-xl font-medium text-white'>Sign in to LeetClone</h3>
@@ -75,8 +102,25 @@ const Login: React.FC<LoginProps> = () => {
 				className='w-full text-white focus:ring-blue-300 font-medium rounded-lg
                 text-sm px-5 py-2.5 text-center bg-brand-orange hover:bg-brand-orange-s
             '
+				disabled={loading}
 			>
 				{loading ? "Loading..." : "Log In"}
+			</button>
+
+			<div className="flex items-center justify-center py-2">
+				<div className="flex-grow border-t border-gray-600"></div>
+				<span className="mx-4 text-gray-400 text-sm">or</span>
+				<div className="flex-grow border-t border-gray-600"></div>
+			</div>
+
+			<button
+				type='button'
+				onClick={handleGoogleSignIn}
+				disabled={loading}
+				className='w-full flex items-center justify-center gap-3 text-white border border-gray-600 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-gray-700 hover:bg-gray-600 transition-colors'
+			>
+				<FcGoogle className="w-5 h-5" />
+				{loading ? "Loading..." : "Continue with Google"}
 			</button>
 			<button className='flex w-full justify-end' onClick={() => handleClick("forgotPassword")}>
 				<a href='#' className='text-sm block text-brand-orange hover:underline w-full text-right'>

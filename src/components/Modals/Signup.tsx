@@ -1,14 +1,13 @@
 import { authModalState } from "@/atoms/authModalAtom";
-import { auth, firestore } from "@/firebase/firebase";
+import { signUpUser } from "@/lib/auth-helpers";
+import { supabase } from "@/utils/supabase";
 import { useEffect, useState } from "react";
 import { useSetRecoilState } from "recoil";
-import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useRouter } from "next/router";
-import { doc, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { SecurityValidator } from "@/utils/security-validation";
-import TwoFactorSetupModal from "./TwoFactorSetup";
 import { IoShieldCheckmark } from "react-icons/io5";
+import { FcGoogle } from "react-icons/fc";
 
 type SignupProps = {};
 
@@ -18,10 +17,8 @@ const Signup: React.FC<SignupProps> = () => {
 		setAuthModalState((prev) => ({ ...prev, type: "login" }));
 	};
 	const [inputs, setInputs] = useState({ email: "", displayName: "", password: "" });
-	const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
-	const [newUserId, setNewUserId] = useState<string | null>(null);
+	const [loading, setLoading] = useState(false);
 	const router = useRouter();
-	const [createUserWithEmailAndPassword, user, loading, error] = useCreateUserWithEmailAndPassword(auth);
 	const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 	};
@@ -29,71 +26,68 @@ const Signup: React.FC<SignupProps> = () => {
 	const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		
-		// Validate and sanitize inputs
-		const validation = SecurityValidator.validateRegistration(inputs);
-		if (!validation.isValid) {
-			toast.error(validation.errors.join('; '), { position: "top-center" });
+		// Basic validation
+		if (!inputs.email || !inputs.password || !inputs.displayName) {
+			toast.error("Please fill all fields", { position: "top-center" });
 			return;
 		}
 		
+		if (inputs.password.length < 8) {
+			toast.error("Password must be at least 8 characters", { position: "top-center" });
+			return;
+		}
+		
+		setLoading(true);
+		toast.loading("Creating your account", { position: "top-center", toastId: "loadingToast" });
+		
 		try {
-			toast.loading("Creating your account", { position: "top-center", toastId: "loadingToast" });
+			const result = await signUpUser(inputs.email, inputs.password, inputs.displayName);
 			
-			const newUser = await createUserWithEmailAndPassword(
-				validation.sanitizedData!.email, 
-				validation.sanitizedData!.password
-			);
+			if (!result.success) {
+				throw new Error(result.error || "Failed to create account");
+			}
 			
-			if (!newUser) return;
+			if (result.needsEmailVerification) {
+				toast.dismiss("loadingToast");
+				toast.info("Please check your email to verify your account", { position: "top-center", autoClose: 5000 });
+				return;
+			}
 			
-			const userData = {
-				uid: newUser.user.uid,
-				email: validation.sanitizedData!.email,
-				displayName: validation.sanitizedData!.displayName,
-				createdAt: Date.now(),
-				updatedAt: Date.now(),
-				likedProblems: [],
-				dislikedProblems: [],
-				solvedProblems: [],
-				starredProblems: [],
-				twoFactor: {
-					isEnabled: false,
-					secret: null,
-					backupCodes: []
-				}
-			};
-			
-			await setDoc(doc(firestore, "users", newUser.user.uid), userData);
-			
-			// Store user ID and show 2FA setup option
-			setNewUserId(newUser.user.uid);
 			toast.dismiss("loadingToast");
 			toast.success("Account created successfully!", { position: "top-center" });
 			
-			// Show 2FA setup modal
-			setShowTwoFactorSetup(true);
+			// Redirect to home page
+			router.push("/");
 			
 		} catch (error: any) {
 			console.error('Registration error:', error);
 			toast.error(error.message, { position: "top-center" });
 		} finally {
+			setLoading(false);
 			toast.dismiss("loadingToast");
 		}
 	};
 
-	const handle2FASetupComplete = () => {
-		setShowTwoFactorSetup(false);
-		router.push("/");
+
+	const handleGoogleSignIn = async () => {
+		setLoading(true);
+		try {
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider: 'google',
+				options: {
+					redirectTo: `${window.location.origin}/`,
+				}
+			});
+			
+			if (error) {
+				throw error;
+			}
+		} catch (error: any) {
+			toast.error(error.message, { position: "top-center", autoClose: 3000, theme: "dark" });
+			setLoading(false);
+		}
 	};
 	
-	const handle2FASetupSkip = () => {
-		setShowTwoFactorSetup(false);
-		router.push("/");
-	};
-	
-	useEffect(() => {
-		if (error) alert(error.message);
-	}, [error]);
 
 	return (
 		<>
@@ -162,8 +156,25 @@ const Signup: React.FC<SignupProps> = () => {
 				className='w-full text-white focus:ring-blue-300 font-medium rounded-lg
             text-sm px-5 py-2.5 text-center bg-brand-orange hover:bg-brand-orange-s
         '
+				disabled={loading}
 			>
 				{loading ? "Registering..." : "Register"}
+			</button>
+
+			<div className="flex items-center justify-center py-2">
+				<div className="flex-grow border-t border-gray-600"></div>
+				<span className="mx-4 text-gray-400 text-sm">or</span>
+				<div className="flex-grow border-t border-gray-600"></div>
+			</div>
+
+			<button
+				type='button'
+				onClick={handleGoogleSignIn}
+				disabled={loading}
+				className='w-full flex items-center justify-center gap-3 text-white border border-gray-600 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-gray-700 hover:bg-gray-600 transition-colors'
+			>
+				<FcGoogle className="w-5 h-5" />
+				{loading ? "Loading..." : "Continue with Google"}
 			</button>
 
 				<div className='text-sm font-medium text-gray-300'>
@@ -173,35 +184,6 @@ const Signup: React.FC<SignupProps> = () => {
 					</a>
 				</div>
 			</form>
-			
-			{/* 2FA Setup Modal */}
-			{showTwoFactorSetup && (
-				<div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
-					<div className="bg-dark-layer-1 p-6 rounded-lg max-w-md w-full mx-4">
-						<h3 className="text-xl font-medium text-white mb-4">Secure Your Account</h3>
-						<p className="text-gray-400 mb-6">
-							Would you like to enable Two-Factor Authentication for enhanced security?
-						</p>
-						<div className="flex space-x-3">
-							<button
-								onClick={() => setShowTwoFactorSetup(false)}
-								className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors"
-							>
-								Set Up Later
-							</button>
-							<button
-								onClick={() => {
-									setShowTwoFactorSetup(false);
-									// This will be handled by the parent component or a separate 2FA setup flow
-								}}
-								className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors"
-							>
-								Enable 2FA
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
 		</>
 	);
 };
