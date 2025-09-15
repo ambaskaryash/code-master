@@ -10,6 +10,9 @@ export interface User {
   id: string;
   email: string;
   display_name: string;
+  bio?: string;
+  location?: string;
+  website?: string;
   created_at: string;
   updated_at: string;
   liked_problems: string[];
@@ -19,6 +22,17 @@ export interface User {
   two_factor_enabled: boolean;
   two_factor_secret?: string;
   backup_codes?: string[];
+  // Stats fields
+  problems_solved?: number;
+  easy_solved?: number;
+  medium_solved?: number;
+  hard_solved?: number;
+  total_submissions?: number;
+  current_streak?: number;
+  max_streak?: number;
+  contest_rating?: number;
+  global_ranking?: number;
+  last_solved_at?: string;
 }
 
 export interface Problem {

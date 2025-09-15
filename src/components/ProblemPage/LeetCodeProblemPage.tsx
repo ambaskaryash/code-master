@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { DBProblem, SupportedLanguage, TestResult } from '@/utils/types/problem';
@@ -50,7 +50,7 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Language configurations for CodeMirror
-  const languageConfig = {
+  const languageConfig = useMemo(() => ({
     javascript: { 
       name: 'JavaScript', 
       extension: [javascript()],
@@ -71,7 +71,7 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
       extension: [cpp()],
       defaultCode: 'class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        \n    }\n};'
     }
-  };
+  }), []);
 
   useEffect(() => {
     if (problem) {
@@ -83,7 +83,7 @@ const CodeMasterProblemPage: React.FC<CodeMasterProblemPageProps> = ({ problem: 
       }
       setLoading(false);
     }
-  }, [problem, selectedLanguage]);
+  }, [problem, selectedLanguage, languageConfig]);
 
   const handleLanguageChange = (language: SupportedLanguage) => {
     setSelectedLanguage(language);

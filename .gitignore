@@ -39,3 +39,6 @@ next-env.d.ts
 # Markdown files - ignore all except README.md
 *.md
 !README.md
+
+*.sql
+server.log

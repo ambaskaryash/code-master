@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { 
   getUserProfile, 
@@ -65,26 +65,7 @@ const ProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'submissions' | 'achievements' | 'notes'>('overview');
   const router = useRouter();
 
-  useEffect(() => {
-    console.log('Profile page useEffect - Auth state:', { user, authLoading });
-    
-    // Don't redirect while authentication is still loading
-    if (authLoading) {
-      console.log('Auth is still loading, waiting...');
-      return;
-    }
-    
-    if (!user) {
-      console.log('No user found, redirecting to auth...');
-      router.push('/auth');
-      return;
-    }
-
-    console.log('User found, fetching profile...');
-    fetchUserProfile();
-  }, [user, router, authLoading]);
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -126,8 +107,26 @@ const ProfilePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
+  useEffect(() => {
+    console.log('Profile page useEffect - Auth state:', { user, authLoading });
+    
+    // Don't redirect while authentication is still loading
+    if (authLoading) {
+      console.log('Auth is still loading, waiting...');
+      return;
+    }
+    
+    if (!user) {
+      console.log('No user found, redirecting to auth...');
+      router.push('/auth');
+      return;
+    }
+
+    console.log('User found, fetching profile...');
+    fetchUserProfile();
+  }, [user, router, authLoading, fetchUserProfile]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {

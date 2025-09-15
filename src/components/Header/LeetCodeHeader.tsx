@@ -29,21 +29,16 @@ const CodeMasterHeader: React.FC<CodeMasterHeaderProps> = ({ problemPage }) => {
   const { user } = useSupabaseAuth();
   const router = useRouter();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [showPremiumDropdown, setShowPremiumDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const premiumRef = useRef<HTMLDivElement>(null);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowUserDropdown(false);
-      }
-      if (premiumRef.current && !premiumRef.current.contains(event.target as Node)) {
-        setShowPremiumDropdown(false);
       }
     };
 
@@ -61,7 +56,7 @@ const CodeMasterHeader: React.FC<CodeMasterHeaderProps> = ({ problemPage }) => {
   const menuItems = [
     { label: 'Explore', href: '/explore', icon: BsListUl },
     { label: 'Problems', href: '/', icon: BsLightningCharge },
-    { label: 'Contest', href: '/contest', icon: BsTrophy },
+    // { label: 'Contest', href: '/contest', icon: BsTrophy }, // Temporarily removed
     { label: 'Discuss', href: '/discuss', icon: BsChatDots },
     { label: 'Interview', href: '/interview', icon: BsBriefcase },
     { label: 'Store', href: '/store', icon: BsShop },
@@ -129,34 +124,6 @@ const CodeMasterHeader: React.FC<CodeMasterHeaderProps> = ({ problemPage }) => {
 
             {/* Right section - Actions and User */}
             <div className="flex items-center space-x-3">
-              {/* Premium Dropdown */}
-              <div className="relative hidden md:block" ref={premiumRef}>
-                <button
-                  onClick={() => setShowPremiumDropdown(!showPremiumDropdown)}
-                  className="flex items-center space-x-1 px-3 py-2 bg-gradient-to-r from-[#FF8C00] to-[#FFA116] text-white rounded-full text-sm font-semibold hover:from-[#FF7700] hover:to-[#FF9500] transition-all duration-200"
-                >
-                  <span>Premium</span>
-                  {showPremiumDropdown ? <BsChevronUp className="w-3 h-3" /> : <BsChevronDown className="w-3 h-3" />}
-                </button>
-
-                {showPremiumDropdown && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
-                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">CodeMaster Premium</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Unlock all features</p>
-                    </div>
-                    <div className="py-2">
-                      <a href="/premium" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        View Plans
-                      </a>
-                      <a href="/premium/benefits" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        Benefits
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* Notifications */}
               <button className="relative p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors">
                 <BsBell className="w-5 h-5" />
@@ -279,16 +246,6 @@ const CodeMasterHeader: React.FC<CodeMasterHeaderProps> = ({ problemPage }) => {
                 })}
               </div>
 
-              {/* Mobile Premium */}
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-                <Link
-                  href="/premium"
-                  className="block px-4 py-2 text-base font-medium text-[#FF8C00] hover:bg-[#FFA116]/10"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Get Premium
-                </Link>
-              </div>
             </div>
           )}
         </div>
