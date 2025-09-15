@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import CodeMasterLogo from '../Logo/CodeMasterLogo';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { 
   BsSearch, 
@@ -74,11 +75,14 @@ const CodeMasterHeader: React.FC<CodeMasterHeaderProps> = ({ problemPage }) => {
             {/* Left section - Logo and Navigation */}
             <div className="flex items-center space-x-6">
               {/* Logo */}
-              <Link href="/" className="flex items-center space-x-2 group">
-                <div className="w-8 h-8 bg-[#FFA116] rounded flex items-center justify-center font-bold text-white text-lg">
-                  L
+              <Link href="/" className="flex items-center space-x-3 group">
+                <div className="transform transition-transform group-hover:scale-110">
+                  <CodeMasterLogo 
+                    size={32} 
+                    className="transition-all duration-200 group-hover:drop-shadow-lg" 
+                  />
                 </div>
-                <span className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-[#FFA116] transition-colors">
+                <span className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-orange-500 transition-colors">
                   CodeMaster
                 </span>
               </Link>
